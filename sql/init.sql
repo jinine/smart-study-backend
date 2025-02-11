@@ -10,3 +10,11 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE documents (
+    uuid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    modified_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    access_type TEXT CHECK (access_type IN ('public', 'restricted')),
+    users VARCHAR(255) NOT NULL,
+    content TEXT
+);
