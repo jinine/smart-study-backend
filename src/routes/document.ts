@@ -14,12 +14,54 @@ export const create_document = async (req: any, res: any) => {
             [access_type, users, content]
         );
 
-        return res.status(201).json({ message: "Document created", document: result.rows[0] });
+        return res.status(201).json({ message: "Document created", document: result.rows });
     } catch (error) {
         console.error("Error inserting document:", error);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const get_documents = async (req: any, res: any) => {
+    
+    try {
+        const result = await pool.query(
+            `SELECT * FROM documents`
+        );
+
+        return res.status(201).json({ message: "Documents fetched successfully", documents: result.rows });
+    } catch (error) {
+        console.error("Error fetching documents", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const get_document_by_uuid = async (req: any, res: any) => {
+    const { uuid } = req.params;
+
+    if (!uuid) {
+        return res.status(400).json({ error: "UUID is required" });
+    }
+
+    try {
+        const result = await pool.query(
+            `SELECT * FROM documents WHERE uuid = $1`,
+            [uuid]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Document not found" });
+        }
+
+        return res.status(200).json({
+            message: "Document fetched successfully",
+            document: result.rows[0],
+        });
+    } catch (error) {
+        console.error("Error fetching document", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
 
 export const delete_document = async (req: any, res: any) => {
     const { uuid } = req.params;

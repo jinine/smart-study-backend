@@ -5,7 +5,7 @@ import cors from 'cors';
 import health_check from './routes/health';
 import { create_user, get_user, update_password } from './routes/user';
 import { login } from './routes/login';
-import { create_document, delete_document, update_document } from './routes/document';
+import { create_document, delete_document, get_document_by_uuid, get_documents, update_document } from './routes/document';
 const crypto = require("crypto");
 const session = require("express-session");
 const port: any = process.env.PORT || 8991;
@@ -46,6 +46,8 @@ app.post('/api/v1/user/update_password', update_password);
 app.post('/api/v1/auth/login', login);
 
 //document routes 
+app.get('/api/v1/documents', get_documents);
+app.get('/api/v1/document/:uuid', get_document_by_uuid);
 app.post('/api/v1/documents/create_document', create_document);
 app.delete('/api/v1/documents/delete_document/:uuid', delete_document);
 app.put('/api/v1/documents/update_document/:uuid', update_document);
