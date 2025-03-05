@@ -5,17 +5,17 @@ import cors from 'cors';
 import health_check from './routes/health';
 import { create_user, get_user, update_password } from './routes/user';
 import { login } from './routes/login';
-import { create_document, delete_document, get_document_by_uuid, get_documents, update_document } from './routes/document';
+import { create_document, delete_document, get_authorized_documents, get_document_by_uuid, get_documents, update_document } from './routes/document';
 const crypto = require("crypto");
 const session = require("express-session");
-const port: any = process.env.PORT || 8991;
+const port: any = process.env.PORT || 4000;
 const secretKey = crypto.randomBytes(64).toString("hex");
 dotenv.config();
 
 const app = express();
 
 const corsOptions = {
-  origin: 'http://localhost:3000', // Replace with your frontend URL
+  origin: 'http://localhost:3000', 
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204
@@ -47,12 +47,13 @@ app.post('/api/v1/auth/login', login);
 
 //document routes 
 app.get('/api/v1/documents', get_documents);
+app.post('/api/v1/authorized_documents', get_authorized_documents);
 app.get('/api/v1/document/:uuid', get_document_by_uuid);
 app.post('/api/v1/documents/create_document', create_document);
 app.delete('/api/v1/documents/delete_document/:uuid', delete_document);
 app.put('/api/v1/documents/update_document/:uuid', update_document);
 
 // Start the server
-app.listen(8991, '0.0.0.0', () => {
-  console.log(`Server started on port ${8991}`);
+app.listen(4000, '0.0.0.0', () => {
+  console.log(`Server started on port ${4000}`);
 });

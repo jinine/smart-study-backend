@@ -22,12 +22,28 @@ export const create_document = async (req: any, res: any) => {
 };
 
 export const get_documents = async (req: any, res: any) => {
-    
+
     try {
         const result = await pool.query(
-            `SELECT * FROM documents`
+            `SELECT * FROM documents WHERE access_type='public'`
         );
 
+        return res.status(201).json({ message: "Documents fetched successfully", documents: result.rows });
+    } catch (error) {
+        console.error("Error fetching documents", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const get_authorized_documents = async (req: any, res: any) => {
+    const { users } = req.body;
+
+    try {
+        const result = await pool.query(
+            `SELECT * FROM documents 
+            WHERE users LIKE $1 OR users = ''`, 
+            [`%${users}%`]
+        );
         return res.status(201).json({ message: "Documents fetched successfully", documents: result.rows });
     } catch (error) {
         console.error("Error fetching documents", error);
