@@ -16,14 +16,21 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: 'http://localhost:3000', credentials: true } });
-
 const corsOptions = {
-  origin: 'http://localhost:3000', 
+  origin: ['https://frontend.lim-e.com', 'https://www.frontend.lim-e.com'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204
 };
+
+app.use(cors(corsOptions));
+
+const io = new Server(server, {
+  cors: {
+    origin: ['https://frontend.lim-e.com', 'https://www.frontend.lim-e.com'],
+    credentials: true
+  }
+});
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
