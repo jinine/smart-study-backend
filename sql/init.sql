@@ -18,3 +18,10 @@ CREATE TABLE documents (
     users VARCHAR(255) NOT NULL,
     content TEXT
 );
+
+CREATE TABLE cue_cards (
+    id SERIAL PRIMARY KEY,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);

@@ -8,6 +8,7 @@ import health_check from './routes/health';
 import { create_user, get_user, update_password } from './routes/user';
 import { login } from './routes/login';
 import { create_document, delete_document, get_authorized_documents, get_document_by_uuid, get_documents, update_document } from './routes/document';
+import { generate_cue_cards, get_cue_cards } from './routes/ai';
 const crypto = require("crypto");
 const session = require("express-session");
 const port: any = process.env.PORT || 4000;
@@ -17,7 +18,7 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const corsOptions = {
-  origin: ['https://frontend.lim-e.com', 'https://www.frontend.lim-e.com'],
+  origin: ['https://frontend.lim-e.com', 'https://www.frontend.lim-e.com','http://localhost:3000'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204
@@ -27,7 +28,7 @@ app.use(cors(corsOptions));
 
 const io = new Server(server, {
   cors: {
-    origin: ['https://frontend.lim-e.com', 'https://www.frontend.lim-e.com'],
+    origin: ['https://frontend.lim-e.com', 'https://www.frontend.lim-e.com', 'http://localhost:3000'],
     credentials: true
   }
 });
@@ -64,6 +65,9 @@ app.post('/api/v1/documents/create_document', create_document);
 app.delete('/api/v1/documents/delete_document/:uuid', delete_document);
 app.put('/api/v1/documents/update_document/:uuid', update_document);
 
+//AI + Cue Card routes 
+app.post('/api/v1/generate-cue-cards', generate_cue_cards);
+app.get('/api/v1/cue-cards', get_cue_cards);
 
 io.on('connection', (socket) => {
   console.log("A user connected");
