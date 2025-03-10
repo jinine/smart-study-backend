@@ -8,7 +8,7 @@ import health_check from './routes/health';
 import { create_user, get_user, update_password } from './routes/user';
 import { login } from './routes/login';
 import { create_document, delete_document, get_authorized_documents, get_document_by_uuid, get_documents, update_document } from './routes/document';
-import { generate_cue_cards, get_cue_cards } from './routes/ai';
+import { create_cue_card, delete_cue_card, edit_cue_card, generate_cue_cards, get_cue_card_groups, get_cue_cards, get_cue_cards_by_group, get_cue_cards_by_user } from './routes/ai';
 const crypto = require("crypto");
 const session = require("express-session");
 const port: any = process.env.PORT || 4000;
@@ -18,7 +18,7 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const corsOptions = {
-  origin: ['https://frontend.lim-e.com', 'https://www.frontend.lim-e.com','http://localhost:3000'],
+  origin: ['http://157.230.72.123/', 'https://frontend.lim-e.com', 'https://www.frontend.lim-e.com','http://localhost:3000'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204
@@ -28,7 +28,7 @@ app.use(cors(corsOptions));
 
 const io = new Server(server, {
   cors: {
-    origin: ['https://frontend.lim-e.com', 'https://www.frontend.lim-e.com', 'http://localhost:3000'],
+    origin: ['http://157.230.72.123','https://frontend.lim-e.com', 'https://www.frontend.lim-e.com', 'http://localhost:3000'],
     credentials: true
   }
 });
@@ -66,8 +66,14 @@ app.delete('/api/v1/documents/delete_document/:uuid', delete_document);
 app.put('/api/v1/documents/update_document/:uuid', update_document);
 
 //AI + Cue Card routes 
+app.post('/api/v1/cue-cards', create_cue_card)
 app.post('/api/v1/generate-cue-cards', generate_cue_cards);
-app.get('/api/v1/cue-cards', get_cue_cards);
+app.post('/api/v1/get-cue-cards', get_cue_cards);
+app.post('/api/v1/cue-cards-by-group/:group_uuid', get_cue_cards_by_group);
+app.post('/api/v1/cue-cards-by-user/:users', get_cue_cards_by_user);
+app.post('/api/v1/cue-card-groups/:users', get_cue_card_groups);
+app.put('/api/v1/cue-cards/:id', edit_cue_card);
+app.delete('/api/v1/cue-cards/:id', delete_cue_card);
 
 io.on('connection', (socket) => {
   console.log("A user connected");
