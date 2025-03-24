@@ -79,38 +79,24 @@ app.post('/api/v1/ai/summarize', summarize);
 app.post('/api/v1/ai/rewrite', rewrite);
 app.post('/api/v1/ai/grammar-check', grammarCheck);
 
-const documentUsers = new Map<string, Map<string, string>>();
-io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
 
-  socket.on("join-document", (documentUuid, userId) => {
-    socket.join(documentUuid);
+io.on('connection', (socket) => {
+  console.log("A user connected");
 
-    if (!documentUsers.has(documentUuid)) {
-      documentUsers.set(documentUuid, new Map());
-    }
-
-    documentUsers.get(documentUuid)!.set(socket.id, userId);
-
-    io.to(documentUuid).emit("user-list", Array.from(documentUsers.get(documentUuid)!.values()));
-  });
-
-  socket.on("document-change", (documentUuid, newContent) => {
+  socket.on('document-change', (documentUuid, newContent) => {
     console.log(`Document ${documentUuid} updated`);
-    socket.to(documentUuid).emit("document-update", documentUuid, newContent);
+
+    io.emit('document-update', documentUuid, newContent);
   });
 
-  socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
-
-    documentUsers.forEach((users, documentUuid) => {
-      if (users.has(socket.id)) {
-        users.delete(socket.id);
-
-        io.to(documentUuid).emit("user-list", Array.from(users.values()));
-      }
-    });
+  socket.on('disconnect', () => {
+    console.log("A user disconnected");
   });
+});
+
+// Start the server
+server.listen(port, '0.0.0.0', () => {
+  console.log(`Server started on port ${port}`);
 });
 
 
