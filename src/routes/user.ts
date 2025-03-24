@@ -51,11 +51,11 @@ export const create_user = async (req: any, res: any) => {
 };
 
 export const get_user = async (req: any, res: any) => {
-  const { username } = req.body;
+  const { email } = req.body;
   try {
     const result = await pool.query(
-      `SELECT * FROM users WHERE username = $1;`,
-      [username]
+      `SELECT * FROM users WHERE email = $1;`,
+      [email]
     );
 
     if (result.rows.length === 0) {

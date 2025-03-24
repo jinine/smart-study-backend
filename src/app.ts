@@ -8,7 +8,7 @@ import health_check from './routes/health';
 import { create_user, get_user, update_password } from './routes/user';
 import { login } from './routes/login';
 import { create_document, delete_document, get_authorized_documents, get_document_by_uuid, get_documents, update_document } from './routes/document';
-import { create_cue_card, delete_cue_card, edit_cue_card, generate_cue_cards, get_cue_card_groups, get_cue_cards, get_cue_cards_by_group, get_cue_cards_by_user } from './routes/ai';
+import { create_cue_card, delete_cue_card, edit_cue_card, generate_cue_cards, get_cue_card_groups, get_cue_cards, get_cue_cards_by_group, get_cue_cards_by_user, grammarCheck, rewrite, summarize } from './routes/ai';
 const crypto = require("crypto");
 const session = require("express-session");
 const port: any = process.env.PORT || 4000;
@@ -75,19 +75,44 @@ app.post('/api/v1/cue-card-groups/:users', get_cue_card_groups);
 app.put('/api/v1/cue-cards/:id', edit_cue_card);
 app.delete('/api/v1/cue-cards/:id', delete_cue_card);
 
-io.on('connection', (socket) => {
-  console.log("A user connected");
+app.post('/api/v1/ai/summarize', summarize);
+app.post('/api/v1/ai/rewrite', rewrite);
+app.post('/api/v1/ai/grammar-check', grammarCheck);
 
-  socket.on('document-change', (documentUuid, newContent) => {
-    console.log(`Document ${documentUuid} updated`);
+const documentUsers = new Map<string, Map<string, string>>();
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
 
-    io.emit('document-update', documentUuid, newContent);
+  socket.on("join-document", (documentUuid, userId) => {
+    socket.join(documentUuid);
+
+    if (!documentUsers.has(documentUuid)) {
+      documentUsers.set(documentUuid, new Map());
+    }
+
+    documentUsers.get(documentUuid)!.set(socket.id, userId);
+
+    io.to(documentUuid).emit("user-list", Array.from(documentUsers.get(documentUuid)!.values()));
   });
 
-  socket.on('disconnect', () => {
-    console.log("A user disconnected");
+  socket.on("document-change", (documentUuid, newContent) => {
+    console.log(`Document ${documentUuid} updated`);
+    socket.to(documentUuid).emit("document-update", documentUuid, newContent);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected:", socket.id);
+
+    documentUsers.forEach((users, documentUuid) => {
+      if (users.has(socket.id)) {
+        users.delete(socket.id);
+
+        io.to(documentUuid).emit("user-list", Array.from(users.values()));
+      }
+    });
   });
 });
+
 
 // Start the server
 server.listen(port, '0.0.0.0', () => {

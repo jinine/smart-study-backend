@@ -4,9 +4,105 @@ import { v4 as uuidv4 } from 'uuid';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+export const summarize = async (req: any, res: any) => {
+    try {
+        const { text, users } = req.body;
+        if (!text || !users) {
+            return res.status(400).json({ error: "Text and users are required" });
+        }
+
+        const prompt = `
+        Summarize the following:
+        ---
+        ${text}
+        ---
+        `;
+
+        const response: any = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+        });
+
+        let rawOutput: any = response.choices[0].message.content.trim();
+        if (!rawOutput) {
+            throw new Error("Empty AI response");
+        }
+
+        res.json({ message: "Summary Complete", data: rawOutput });
+    } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "Failed to generate cue cards" });
+    }
+};
+
+export const rewrite = async (req: any, res: any) => {
+    try {
+        const { text, tone } = req.body;
+        if (!text) {
+            return res.status(400).json({ error: "Text is required" });
+        }
+
+        const prompt = `
+        Rewrite the following text in a ${tone || "professional"} tone, be sure to keep the right html tags:
+        ---
+        ${text}
+        ---
+        Format:
+        {"rewrite": new text (formatted)}
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+        });
+
+        let rawOutput = response.choices[0].message.content?.trim();
+        res.json({ message: "Rewrite Complete", data: rawOutput });
+
+    } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "Failed to rewrite text" });
+    }
+};
+
+export const grammarCheck = async (req: any, res: any) => {
+    try {
+        const { text } = req.body;
+        if (!text) {
+            return res.status(400).json({ error: "Text is required" });
+        }
+
+        const prompt = `
+        Check the following text for grammar and spelling mistakes, and provide the corrected version:
+        ---
+        ${text}
+        ---
+         Format:
+        {"previous-text": existing text...., "new-text": fixed text}
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+        });
+
+        let rawOutput = response.choices[0].message.content?.trim();
+        res.json({ message: "Grammar Check Complete", data: rawOutput });
+
+    } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "Failed to check grammar" });
+    }
+};
+
+
+
 export const generate_cue_cards = async (req: any, res: any) => {
     try {
-        const { title, text, users } = req.body;  // Assuming 'users' is passed in the request body
+        const { title, text, users } = req.body;
         const newUuid = uuidv4();
         if (!text || !users) {
             return res.status(400).json({ error: "Text and users are required" });
