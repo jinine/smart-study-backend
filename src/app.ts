@@ -98,9 +98,3 @@ io.on('connection', (socket) => {
 server.listen(port, '0.0.0.0', () => {
   console.log(`Server started on port ${port}`);
 });
-
-
-// Start the server
-server.listen(port, '0.0.0.0', () => {
-  console.log(`Server started on port ${port}`);
-});
