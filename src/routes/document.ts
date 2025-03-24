@@ -27,7 +27,7 @@ export const create_document = async (req: any, res: any) => {
     }
 };
 
-export const get_documents = async (req, res) => {
+export const get_documents = async (req: any, res: any) => {
   const cacheKey = 'public_documents';
   
   try {
@@ -35,7 +35,7 @@ export const get_documents = async (req, res) => {
     const cachedData = await redis.get(cacheKey);
 
     if (cachedData) {
-      return res.status(200).json({ message: "Documents fetched from cache", documents: JSON.parse(cachedData) });
+      return res.status(201).json({ message: "Documents fetched from cache", documents: JSON.parse(cachedData) });
     }
 
     // If data isn't in cache, fetch it from the database
@@ -44,7 +44,7 @@ export const get_documents = async (req, res) => {
     // Cache the data in Redis for 1 hour
     await redis.setex(cacheKey, 3600, JSON.stringify(result.rows));
 
-    return res.status(200).json({ message: "Documents fetched from database", documents: result.rows });
+    return res.status(201).json({ message: "Documents fetched from database", documents: result.rows });
 
   } catch (error) {
     console.error("Error fetching documents", error);
