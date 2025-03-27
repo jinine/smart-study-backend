@@ -148,8 +148,7 @@ export const generate_cue_cards = async (req: any, res: any) => {
                 const result = await client.query(insertQuery, [title, question, answer, users, newUuid]);
                 savedCueCards.push(result.rows[0]);
             }
-
-            res.json({ message: "Cue cards saved successfully", data: savedCueCards });
+            res.status(201).json({ message: "Cue cards saved successfully", data: savedCueCards });
         } catch (dbError) {
             console.error("Database Error:", dbError);
             res.status(500).json({ error: "Failed to save cue cards to database" });

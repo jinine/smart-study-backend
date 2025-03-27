@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import express from 'express';
 import cors from 'cors';
-import http from 'http'; // Import the 'http' module for creating a server
-import { Server } from 'socket.io'; // Import the 'Server' from Socket.IO
+import http from 'http'; 
+import { Server } from 'socket.io';
 import health_check from './routes/health';
 import { create_user, get_user, update_password } from './routes/user';
 import { login } from './routes/login';
